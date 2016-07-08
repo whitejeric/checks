@@ -2,49 +2,58 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
-import {getBoardState} from '../actions/index';
+import {getBoardState, initBoardState, getGameState, initGame} from '../actions/index';
 
-import CheckSquare from './check-square';
-
+import Board from '../components/board';
 
 class CheckBoard extends Component{
   handleClick(){
+    this.props.initBoardState();
+    this.props.initGame();
+
     this.props.getBoardState();
+    this.props.getGameState();
   }
+
+  handlePlay(){
+    this.props.getGameState();
+  }
+
   render(){
+    var gameStart = (this.props.board.length > 0) && (this.props.game.turn > 0);
+    var showBoard = '';
+    if (!gameStart){
+      //do nothing
+    }
+    else{
+      showBoard = (
+          <Board board={this.props.board} currentPlayer={this.props.game.player}/>
+      )
+    }
     return(
       <div className='checkBoard'>
         <h1 className='appHeader'>Checkboard</h1>
-        <table className='checkTable'>
-          <tbody>
-            <tr>
-              <td><CheckSquare num='0' /></td>
-              <td><CheckSquare num='1'/></td>
-              <td><CheckSquare num='2'/></td>
-            </tr>
-            <tr>
-              <td><CheckSquare num='3'/></td>
-              <td><CheckSquare num='4'/></td>
-              <td><CheckSquare num='5'/></td>
-            </tr>
-            <tr>
-              <td><CheckSquare num='6'/></td>
-              <td><CheckSquare num='7'/></td>
-              <td><CheckSquare num='8'/></td>
-            </tr>
-          </tbody>
-        </table>
+
+        <div className='game-area' onClick={this.handlePlay.bind(this)}>
+          {showBoard}
+        </div>
+        <hr />
+        <button onClick={this.handleClick.bind(this)}>{!gameStart ? 'start':'reset'}</button>
+
       </div>
     );
   }
 }
 
 function mapStateToProps(state){
-  return {board : state.board};
+  return {
+    board: state.board,
+    game: state.game
+  };
 }
 
 function mapDispatchToProps(dispatch){
-  return bindActionCreators({getBoardState}, dispatch);
+  return bindActionCreators({getBoardState, initBoardState, getGameState, initGame}, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(CheckBoard);
